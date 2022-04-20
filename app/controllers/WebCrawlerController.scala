@@ -57,7 +57,7 @@ class WebCrawlerController @Inject()(implicit
     val body: JsValue = request.body
     val jsonBody: String = body.toString()
 
-    logger.info("body: " + jsonBody)
+    logger.info(s"crawl request body: $jsonBody")
 
     val crawlRequest: JsResult[CrawlRequest] =  body.validate[CrawlRequest]
 
