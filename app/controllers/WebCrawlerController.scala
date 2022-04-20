@@ -4,7 +4,7 @@ import common.{CrawlRequest, CrawlResponse, CrawlResponseElement}
 import play.api.Logger
 
 import javax.inject._
-import play.api.libs.json.{JsError, JsResult, JsSuccess, JsValue, Json}
+import play.api.libs.json.{JsArray, JsError, JsObject, JsResult, JsSuccess, JsValue, Json, Reads, __}
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -25,7 +25,26 @@ class WebCrawlerController @Inject()(val controllerComponents: ControllerCompone
    * a path of `/crawl`.
    */
 
-  implicit val crawlRequestReads = Json.reads[CrawlRequest]
+  implicit val crawlRequestReads: Reads[CrawlRequest] = Reads {
+    case JsObject(data)  =>
+      data.head._2.isInstanceOf[JsArray] match {
+        case true =>
+          val setOfUrlsJsonArray = data.head._2.as[JsArray]
+          val setOfUrls = setOfUrlsJsonArray.value.toSet
+          setOfUrls.size match {
+            case 0 =>
+              JsError(s"Array of urls(strings) passed must contain at least 1 url.")
+            case _ =>
+              JsSuccess(CrawlRequest(setOfUrls.map(_.toString())))
+          }
+        case false =>
+          JsError(s"Array of urls(strings) must be passed.")
+      }
+
+    case _ =>
+      JsError(s"Array of urls(strings) must be passed and it must contain at least 1 url.")
+  }
+
   implicit val crawlResponseElementWrites = Json.writes[CrawlResponseElement]
   implicit val crawlResponseWrites = Json.writes[CrawlResponse]
 
