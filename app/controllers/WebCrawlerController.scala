@@ -2,11 +2,11 @@ package controllers
 
 import common.{CrawlRequest, CrawlResponse, CrawlResponseElement}
 import play.api.Logger
+import play.api.libs.json._
+import play.api.mvc._
+import service.WebCrawlerService
 
 import javax.inject._
-import play.api.libs.json.{JsArray, JsError, JsObject, JsResult, JsSuccess, JsValue, Json, Reads, __}
-import play.api.mvc._
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -15,7 +15,10 @@ import scala.concurrent.Future
  * web crawler endpoint.
  */
 @Singleton
-class WebCrawlerController @Inject()(val controllerComponents: ControllerComponents) extends BaseController {
+class WebCrawlerController @Inject()(implicit
+                                     controllerComponents: ControllerComponents,
+                                     webCrawlerService: WebCrawlerService
+                                    ) extends AbstractController(controllerComponents) {
   val logger: Logger = Logger(this.getClass())
   /**
    * Create an Action to returned the crawled response for urls present in request.
@@ -25,6 +28,7 @@ class WebCrawlerController @Inject()(val controllerComponents: ControllerCompone
    * a path of `/crawl`.
    */
 
+  //validate the incoming request data.
   implicit val crawlRequestReads: Reads[CrawlRequest] = Reads {
     case JsObject(data)  =>
       data.head._2.isInstanceOf[JsArray] match {
@@ -58,11 +62,8 @@ class WebCrawlerController @Inject()(val controllerComponents: ControllerCompone
     val crawlRequest: JsResult[CrawlRequest] =  body.validate[CrawlRequest]
 
     crawlRequest match {
-      case JsSuccess(crawlRequestObj, _) =>
-        val setOfFutures = crawlRequestObj.urls.map { url =>
-          Future(CrawlResponseElement(url, s"Crawled $url"))
-        }
-
+      case JsSuccess(crawlRequestObj: CrawlRequest, _) =>
+        val setOfFutures = webCrawlerService.processRequest(crawlRequestObj)
         val response: Future[CrawlResponse] = Future.sequence(setOfFutures).map { setOfResults: Set[CrawlResponseElement] =>
           CrawlResponse(setOfResults, None)
         }
