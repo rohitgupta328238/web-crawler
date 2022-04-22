@@ -4,16 +4,16 @@ import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
 import play.api.Logger
 
-object Utils {
+trait RestService {
+  def restGetCall(url: String): String
+}
 
+object RestServiceAdaptor extends RestService {
   val logger: Logger = Logger(this.getClass())
-
-  def restGetCall(url: String): String = {
-    logger.info("GET url: " + url)
-
+  override def restGetCall(url: String): String = {
     try {
       val request = Unirest.get(url)
-                    .header("Accept", "text/html")
+        .header("Accept", "text/html")
 
       val stringHttpResponse = request.asString
       val status = stringHttpResponse.getStatus
@@ -34,7 +34,5 @@ object Utils {
     } catch {
       case ex: UnirestException => throw new Exception(s"Unirest exception during GET response for url $url", ex)
     }
-
   }
-
 }
