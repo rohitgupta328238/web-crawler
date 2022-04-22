@@ -13,6 +13,7 @@ object Utils {
 
     try {
       val request = Unirest.get(url)
+                    .header("Accept", "text/html")
 
       val stringHttpResponse = request.asString
       val status = stringHttpResponse.getStatus

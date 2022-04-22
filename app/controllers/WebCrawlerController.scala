@@ -39,7 +39,7 @@ class WebCrawlerController @Inject()(implicit
             case 0 =>
               JsError(s"Array of urls(strings) passed must contain at least 1 url.")
             case _ =>
-              JsSuccess(CrawlRequest(setOfUrls.map(_.toString())))
+              JsSuccess(CrawlRequest(setOfUrls.map(_.as[String])))
           }
         case false =>
           JsError(s"Array of urls(strings) must be passed.")
