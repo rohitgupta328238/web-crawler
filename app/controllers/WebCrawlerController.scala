@@ -7,8 +7,7 @@ import play.api.mvc._
 import service.WebCrawlerService
 
 import javax.inject._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * This controller creates an `Action` to handle HTTP requests to the
@@ -17,7 +16,8 @@ import scala.concurrent.Future
 @Singleton
 class WebCrawlerController @Inject()(implicit
                                      controllerComponents: ControllerComponents,
-                                     webCrawlerService: WebCrawlerService
+                                     webCrawlerService: WebCrawlerService,
+                                     executionContext: ExecutionContext
                                     ) extends AbstractController(controllerComponents) {
   val logger: Logger = Logger(this.getClass())
   /**

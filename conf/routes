@@ -4,4 +4,4 @@
 # ~~~~
 
 # An example controller showing a sample home page
-POST     /api/1/crawl                           controllers.WebCrawlerController.crawl()
+POST     /api/crawl                           controllers.WebCrawlerController.crawl()
