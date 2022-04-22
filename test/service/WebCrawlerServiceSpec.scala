@@ -28,5 +28,30 @@ class WebCrawlerServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFutu
         asyncResult.error mustBe None
       }
     }
+
+    "return response and error from the method" in {
+      val request = CrawlRequest(Set("https://www.google.com", "htps://github.com"))
+      val service = new WebCrawlerService
+
+      val restService = mock[RestService]
+
+      //stub mock
+      request.urls.map {
+          url =>
+            if(url.startsWith("htps")) {
+              when(restService.restGetCall(url)).thenThrow(new RuntimeException(s"$url: error response received"))
+            } else {
+              when(restService.restGetCall(url)).thenReturn(s"$url: response received")
+            }
+
+      }
+
+      val response = service.processRequest(request, restService)
+      whenReady(response){ asyncResult =>
+        asyncResult.result.size mustBe 1
+        asyncResult.error.get.contains("error") mustBe true
+      }
+    }
+
   }
 }
