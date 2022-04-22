@@ -63,10 +63,7 @@ class WebCrawlerController @Inject()(implicit
 
     crawlRequest match {
       case JsSuccess(crawlRequestObj: CrawlRequest, _) =>
-        val setOfFutures = webCrawlerService.processRequest(crawlRequestObj)
-        val response: Future[CrawlResponse] = Future.sequence(setOfFutures).map { setOfResults: Set[CrawlResponseElement] =>
-          CrawlResponse(setOfResults, None)
-        }
+        val response = webCrawlerService.processRequest(crawlRequestObj)
 
         response.map(crawlResponse => Ok(Json.toJson(crawlResponse)))
       case JsError(errors) =>

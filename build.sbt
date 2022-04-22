@@ -9,6 +9,8 @@ scalaVersion := "2.12.10"
 
 libraryDependencies += guice
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
+libraryDependencies += "com.mashape.unirest" % "unirest-java" % "1.4.9"
+
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.example.controllers._"
